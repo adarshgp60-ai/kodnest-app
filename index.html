@@ -26,12 +26,40 @@
     </main>
   </div>
 
+  <div id="job-modal" class="modal" aria-hidden="true">
+    <div class="modal__backdrop" data-close-modal></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="job-modal-title">
+      <button class="modal__close" type="button" data-close-modal aria-label="Close">Close</button>
+      <h2 id="job-modal-title" class="modal__title"></h2>
+      <p class="modal__meta" id="job-modal-meta"></p>
+      <p class="modal__description" id="job-modal-description"></p>
+      <div class="modal__skills" id="job-modal-skills"></div>
+      <a id="job-modal-apply" class="button-secondary" href="#" target="_blank" rel="noopener noreferrer">Apply Now</a>
+    </div>
+  </div>
+
   <script>
     (function () {
+      const STORAGE_KEY = "job_tracker_saved_ids";
       const routeView = document.getElementById("route-view");
       const nav = document.querySelector(".top-nav");
+      const modal = document.getElementById("job-modal");
+      const modalTitle = document.getElementById("job-modal-title");
+      const modalMeta = document.getElementById("job-modal-meta");
+      const modalDescription = document.getElementById("job-modal-description");
+      const modalSkills = document.getElementById("job-modal-skills");
+      const modalApply = document.getElementById("job-modal-apply");
 
-      const pages = {
+      const dashboardState = {
+        keyword: "",
+        location: "All",
+        mode: "All",
+        experience: "All",
+        source: "All",
+        sort: "Latest",
+      };
+
+      const staticPages = {
         "/": {
           html:
             '<section class="page hero-page">' +
@@ -40,14 +68,6 @@
             '<a class="button-primary" href="/settings" data-route="/settings">Start Tracking</a>' +
             "</section>",
           docTitle: "Job Notification Tracker",
-        },
-        "/dashboard": {
-          html:
-            '<section class="page">' +
-            '<h1 class="page__title">Dashboard</h1>' +
-            '<p class="empty-title">No jobs yet. In the next step, you will load a realistic dataset.</p>' +
-            "</section>",
-          docTitle: "Dashboard | Job Notification Tracker",
         },
         "/settings": {
           html:
@@ -59,7 +79,7 @@
             "</div>" +
             '<div class="field-group">' +
             '<label class="field-label" for="preferred-locations">Preferred locations</label>' +
-            '<input class="field-input" id="preferred-locations" type="text" placeholder="e.g. New York, Austin, Remote (US)" />' +
+            '<input class="field-input" id="preferred-locations" type="text" placeholder="e.g. Bengaluru, Pune, Remote (India)" />' +
             "</div>" +
             '<div class="field-group">' +
             '<label class="field-label" for="mode">Mode (Remote / Hybrid / Onsite)</label>' +
@@ -67,19 +87,10 @@
             "</div>" +
             '<div class="field-group">' +
             '<label class="field-label" for="experience-level">Experience level</label>' +
-            '<input class="field-input" id="experience-level" type="text" placeholder="e.g. Entry, Mid, Senior" />' +
+            '<input class="field-input" id="experience-level" type="text" placeholder="e.g. Fresher, 0-1, 1-3, 3-5" />' +
             "</div>" +
             "</section>",
           docTitle: "Settings | Job Notification Tracker",
-        },
-        "/saved": {
-          html:
-            '<section class="page">' +
-            '<h1 class="page__title">Saved</h1>' +
-            '<p class="empty-title">No saved jobs yet.</p>' +
-            '<p class="empty-copy">Jobs you bookmark for later review will appear here.</p>' +
-            "</section>",
-          docTitle: "Saved | Job Notification Tracker",
         },
         "/digest": {
           html:
@@ -100,11 +111,291 @@
         },
       };
 
-      function normalizePath(path) {
-        if (!path || path === "/" || path.endsWith("/index.html")) {
-          return "/";
+      const JOBS = buildJobsData();
+      const JOBS_MAP = new Map(JOBS.map((job) => [job.id, job]));
+
+      function slugify(value) {
+        return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      }
+
+      function createDescription(title, company, location, mode, skills) {
+        return [
+          "Join " + company + " as a " + title + " to build reliable products for Indian and global users.",
+          "Work with cross-functional teams in " + location + " under a " + mode + " work setup.",
+          "You will contribute to production features, write clean code, and participate in code reviews.",
+          "Strong exposure to " + skills.slice(0, 3).join(", ") + " and modern engineering practices is expected."
+        ].join("\n");
+      }
+
+      function skillsForTitle(title) {
+        if (title.includes("Backend") || title.includes("Java")) {
+          return ["Java", "Spring Boot", "REST APIs", "SQL"];
         }
+        if (title.includes("Python")) {
+          return ["Python", "Django", "PostgreSQL", "Git"];
+        }
+        if (title.includes("Frontend") || title.includes("React")) {
+          return ["JavaScript", "React", "HTML/CSS", "TypeScript"];
+        }
+        if (title.includes("QA")) {
+          return ["Test Cases", "Selenium", "API Testing", "JIRA"];
+        }
+        if (title.includes("Data Analyst")) {
+          return ["SQL", "Excel", "Power BI", "Python"];
+        }
+        if (title.includes("SDE Intern")) {
+          return ["DSA", "JavaScript", "Node.js", "Git"];
+        }
+        return ["Problem Solving", "OOP", "SQL", "Git"];
+      }
+
+      function buildJobsData() {
+        const companies = [
+          "Infosys", "TCS", "Wipro", "Accenture", "Capgemini", "Cognizant",
+          "IBM", "Oracle", "SAP", "Dell", "Amazon", "Flipkart",
+          "Swiggy", "Razorpay", "PhonePe", "Paytm", "Zoho", "Freshworks",
+          "Juspay", "CRED", "CloudNest Labs", "ByteKart Technologies",
+          "NovaStack Systems", "ScaleBridge AI", "CodeSprint Labs", "HireFlow Tech",
+          "DataMitra Analytics", "StackOrbit", "QuickLedger", "InfraPulse",
+          "DevHarbor", "FinClerk", "RouteSignal", "TechMonk Labs",
+          "AlgoMint", "MeshWorks", "NexaByte", "BuildRoot", "OrbitPay", "KubeTrail"
+        ];
+
+        const titles = [
+          "SDE Intern",
+          "Graduate Engineer Trainee",
+          "Junior Backend Developer",
+          "Frontend Intern",
+          "QA Intern",
+          "Data Analyst Intern",
+          "Java Developer (0-1)",
+          "Python Developer (Fresher)",
+          "React Developer (1-3)",
+          "Associate Software Engineer",
+          "Junior Full Stack Developer",
+          "Cloud Support Engineer"
+        ];
+
+        const locations = [
+          "Bengaluru", "Hyderabad", "Pune", "Chennai", "Mumbai", "Gurugram",
+          "Noida", "Kolkata", "Ahmedabad", "Kochi", "Indore", "Jaipur"
+        ];
+
+        const modes = ["Remote", "Hybrid", "Onsite"];
+        const experiences = ["Fresher", "0-1", "1-3", "3-5"];
+        const sources = ["LinkedIn", "Naukri", "Indeed"];
+
+        const jobs = [];
+        for (let i = 0; i < 60; i += 1) {
+          const title = titles[i % titles.length];
+          const company = companies[i % companies.length];
+          const location = locations[i % locations.length];
+          const mode = modes[i % modes.length];
+          const source = sources[i % sources.length];
+          const postedDaysAgo = i % 11;
+          const id = "job-" + String(i + 1).padStart(3, "0");
+          const skills = skillsForTitle(title);
+
+          let experience = experiences[(i + 1) % experiences.length];
+          if (title.includes("Intern") || title.includes("Fresher")) {
+            experience = "Fresher";
+          } else if (title.includes("(0-1)")) {
+            experience = "0-1";
+          } else if (title.includes("(1-3)")) {
+            experience = "1-3";
+          }
+
+          let salaryRange = "6–10 LPA";
+          if (title.includes("Intern")) {
+            salaryRange = "₹15k–₹40k/month Internship";
+          } else if (experience === "Fresher" || experience === "0-1") {
+            salaryRange = "3–5 LPA";
+          } else if (experience === "1-3") {
+            salaryRange = "6–10 LPA";
+          } else {
+            salaryRange = "10–18 LPA";
+          }
+
+          const applyUrl = "https://careers." + slugify(company) + ".in/jobs/" + id;
+          const description = createDescription(title, company, location, mode, skills) +
+            "\nHiring process includes screening, technical round, and team discussion.";
+
+          jobs.push({
+            id: id,
+            title: title,
+            company: company,
+            location: location,
+            mode: mode,
+            experience: experience,
+            skills: skills,
+            source: source,
+            postedDaysAgo: postedDaysAgo,
+            salaryRange: salaryRange,
+            applyUrl: applyUrl,
+            description: description
+          });
+        }
+        return jobs;
+      }
+
+      function normalizePath(path) {
+        if (!path || path === "/" || path.endsWith("/index.html")) return "/";
         return path;
+      }
+
+      function getSavedIds() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+          return [];
+        }
+      }
+
+      function setSavedIds(ids) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+      }
+
+      function isSaved(id) {
+        return getSavedIds().includes(id);
+      }
+
+      function toggleSaved(id) {
+        const ids = getSavedIds();
+        if (ids.includes(id)) {
+          setSavedIds(ids.filter((savedId) => savedId !== id));
+          return false;
+        }
+        setSavedIds(ids.concat(id));
+        return true;
+      }
+
+      function dayText(days) {
+        if (days === 0) return "Today";
+        if (days === 1) return "1 day ago";
+        return days + " days ago";
+      }
+
+      function escapeHtml(text) {
+        return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function renderJobCard(job) {
+        const saved = isSaved(job.id);
+        return (
+          '<article class="job-card" data-job-id="' + job.id + '">' +
+            '<div class="job-card__head">' +
+              '<h3 class="job-card__title">' + escapeHtml(job.title) + "</h3>" +
+              '<span class="source-badge">' + escapeHtml(job.source) + "</span>" +
+            "</div>" +
+            '<p class="job-card__company">' + escapeHtml(job.company) + "</p>" +
+            '<p class="job-card__meta">' + escapeHtml(job.location) + " • " + escapeHtml(job.mode) + "</p>" +
+            '<p class="job-card__meta">Experience: ' + escapeHtml(job.experience) + "</p>" +
+            '<p class="job-card__meta">Salary: ' + escapeHtml(job.salaryRange) + "</p>" +
+            '<p class="job-card__posted">' + dayText(job.postedDaysAgo) + "</p>" +
+            '<div class="job-card__actions">' +
+              '<button class="button-secondary" type="button" data-action="view" data-job-id="' + job.id + '">View</button>' +
+              '<button class="button-secondary" type="button" data-action="save" data-job-id="' + job.id + '">' + (saved ? "Saved" : "Save") + "</button>" +
+              '<a class="button-secondary" href="' + escapeHtml(job.applyUrl) + '" target="_blank" rel="noopener noreferrer">Apply</a>' +
+            "</div>" +
+          "</article>"
+        );
+      }
+
+      function uniqueValues(key) {
+        return Array.from(new Set(JOBS.map((job) => job[key]))).sort();
+      }
+
+      function renderFilterBar() {
+        const locationOptions = ['<option value="All">All locations</option>']
+          .concat(uniqueValues("location").map((location) => '<option value="' + escapeHtml(location) + '">' + escapeHtml(location) + "</option>"))
+          .join("");
+        const modeOptions = ['<option value="All">All modes</option>']
+          .concat(uniqueValues("mode").map((mode) => '<option value="' + escapeHtml(mode) + '">' + escapeHtml(mode) + "</option>"))
+          .join("");
+        const experienceOptions = ['<option value="All">All experience</option>']
+          .concat(uniqueValues("experience").map((exp) => '<option value="' + escapeHtml(exp) + '">' + escapeHtml(exp) + "</option>"))
+          .join("");
+        const sourceOptions = ['<option value="All">All sources</option>']
+          .concat(uniqueValues("source").map((source) => '<option value="' + escapeHtml(source) + '">' + escapeHtml(source) + "</option>"))
+          .join("");
+
+        return (
+          '<div class="filter-bar">' +
+            '<input id="filter-keyword" class="field-input" type="text" placeholder="Search title or company" value="' + escapeHtml(dashboardState.keyword) + '" />' +
+            '<select id="filter-location" class="field-input">' + locationOptions + "</select>" +
+            '<select id="filter-mode" class="field-input">' + modeOptions + "</select>" +
+            '<select id="filter-experience" class="field-input">' + experienceOptions + "</select>" +
+            '<select id="filter-source" class="field-input">' + sourceOptions + "</select>" +
+            '<select id="filter-sort" class="field-input">' +
+              '<option value="Latest">Latest</option>' +
+              '<option value="Oldest">Oldest</option>' +
+            "</select>" +
+          "</div>"
+        );
+      }
+
+      function applyDashboardFilters(list) {
+        const keyword = dashboardState.keyword.trim().toLowerCase();
+        const filtered = list.filter((job) => {
+          const keywordMatch = !keyword ||
+            job.title.toLowerCase().includes(keyword) ||
+            job.company.toLowerCase().includes(keyword);
+          const locationMatch = dashboardState.location === "All" || job.location === dashboardState.location;
+          const modeMatch = dashboardState.mode === "All" || job.mode === dashboardState.mode;
+          const experienceMatch = dashboardState.experience === "All" || job.experience === dashboardState.experience;
+          const sourceMatch = dashboardState.source === "All" || job.source === dashboardState.source;
+          return keywordMatch && locationMatch && modeMatch && experienceMatch && sourceMatch;
+        });
+
+        filtered.sort(function (a, b) {
+          if (dashboardState.sort === "Oldest") return b.postedDaysAgo - a.postedDaysAgo;
+          return a.postedDaysAgo - b.postedDaysAgo;
+        });
+        return filtered;
+      }
+
+      function renderDashboardPage() {
+        const jobs = applyDashboardFilters(JOBS);
+        const cardsHtml = jobs.length
+          ? jobs.map(renderJobCard).join("")
+          : '<div class="empty-state"><h2 class="empty-title">No jobs match your search.</h2></div>';
+        return (
+          '<section class="page">' +
+            '<h1 class="page__title">Dashboard</h1>' +
+            renderFilterBar() +
+            '<div class="jobs-grid">' + cardsHtml + "</div>" +
+          "</section>"
+        );
+      }
+
+      function renderSavedPage() {
+        const ids = getSavedIds();
+        const jobs = ids.map((id) => JOBS_MAP.get(id)).filter(Boolean);
+        if (jobs.length === 0) {
+          return (
+            '<section class="page">' +
+              '<h1 class="page__title">Saved</h1>' +
+              '<div class="empty-state">' +
+                '<h2 class="empty-title">No saved jobs yet.</h2>' +
+                '<p class="empty-copy">Saved roles from the dashboard will appear here and stay available after reload.</p>' +
+              "</div>" +
+            "</section>"
+          );
+        }
+        return (
+          '<section class="page">' +
+            '<h1 class="page__title">Saved</h1>' +
+            '<div class="jobs-grid">' + jobs.map(renderJobCard).join("") + "</div>" +
+          "</section>"
+        );
       }
 
       function setActiveRoute(path) {
@@ -113,20 +404,95 @@
           const route = link.getAttribute("data-route");
           const isActive = route === path;
           link.classList.toggle("top-nav__link--active", isActive);
-          if (isActive) {
-            link.setAttribute("aria-current", "page");
-          } else {
-            link.removeAttribute("aria-current");
-          }
+          if (isActive) link.setAttribute("aria-current", "page");
+          else link.removeAttribute("aria-current");
+        });
+      }
+
+      function closeModal() {
+        modal.classList.remove("modal--open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      function openModal(jobId) {
+        const job = JOBS_MAP.get(jobId);
+        if (!job) return;
+        modalTitle.textContent = job.title;
+        modalMeta.textContent = job.company + " • " + job.location + " • " + job.mode + " • " + job.experience;
+        modalDescription.textContent = job.description;
+        modalSkills.innerHTML = job.skills.map((skill) => '<span class="skill-pill">' + escapeHtml(skill) + "</span>").join("");
+        modalApply.href = job.applyUrl;
+        modal.classList.add("modal--open");
+        modal.setAttribute("aria-hidden", "false");
+      }
+
+      function bindFilters() {
+        const keywordEl = document.getElementById("filter-keyword");
+        const locationEl = document.getElementById("filter-location");
+        const modeEl = document.getElementById("filter-mode");
+        const expEl = document.getElementById("filter-experience");
+        const sourceEl = document.getElementById("filter-source");
+        const sortEl = document.getElementById("filter-sort");
+        if (!keywordEl) return;
+
+        locationEl.value = dashboardState.location;
+        modeEl.value = dashboardState.mode;
+        expEl.value = dashboardState.experience;
+        sourceEl.value = dashboardState.source;
+        sortEl.value = dashboardState.sort;
+
+        keywordEl.addEventListener("input", function () {
+          dashboardState.keyword = keywordEl.value;
+          routeView.innerHTML = renderDashboardPage();
+          bindFilters();
+        });
+        locationEl.addEventListener("change", function () {
+          dashboardState.location = locationEl.value;
+          routeView.innerHTML = renderDashboardPage();
+          bindFilters();
+        });
+        modeEl.addEventListener("change", function () {
+          dashboardState.mode = modeEl.value;
+          routeView.innerHTML = renderDashboardPage();
+          bindFilters();
+        });
+        expEl.addEventListener("change", function () {
+          dashboardState.experience = expEl.value;
+          routeView.innerHTML = renderDashboardPage();
+          bindFilters();
+        });
+        sourceEl.addEventListener("change", function () {
+          dashboardState.source = sourceEl.value;
+          routeView.innerHTML = renderDashboardPage();
+          bindFilters();
+        });
+        sortEl.addEventListener("change", function () {
+          dashboardState.sort = sortEl.value;
+          routeView.innerHTML = renderDashboardPage();
+          bindFilters();
         });
       }
 
       function render(pathname) {
         const path = normalizePath(pathname);
-        const page = pages[path] || pages["/"];
+        setActiveRoute(path);
+
+        if (path === "/dashboard") {
+          routeView.innerHTML = renderDashboardPage();
+          document.title = "Dashboard | Job Notification Tracker";
+          bindFilters();
+          return;
+        }
+
+        if (path === "/saved") {
+          routeView.innerHTML = renderSavedPage();
+          document.title = "Saved | Job Notification Tracker";
+          return;
+        }
+
+        const page = staticPages[path] || staticPages["/"];
         routeView.innerHTML = page.html;
         document.title = page.docTitle;
-        setActiveRoute(path);
       }
 
       function onNavigate(event) {
@@ -134,14 +500,43 @@
         if (!link) return;
         event.preventDefault();
         const path = new URL(link.getAttribute("href"), window.location.origin).pathname;
-        const currentPath = normalizePath(window.location.pathname);
-        if (path === currentPath) return;
+        if (normalizePath(path) === normalizePath(window.location.pathname)) return;
         window.history.pushState({}, "", path);
         render(path);
       }
 
       nav.addEventListener("click", onNavigate);
-      routeView.addEventListener("click", onNavigate);
+      routeView.addEventListener("click", function (event) {
+        const routeLink = event.target.closest("a[data-route]");
+        if (routeLink) {
+          onNavigate(event);
+          return;
+        }
+
+        const viewButton = event.target.closest('button[data-action="view"]');
+        if (viewButton) {
+          openModal(viewButton.getAttribute("data-job-id"));
+          return;
+        }
+
+        const saveButton = event.target.closest('button[data-action="save"]');
+        if (saveButton) {
+          const jobId = saveButton.getAttribute("data-job-id");
+          toggleSaved(jobId);
+          render(window.location.pathname);
+        }
+      });
+
+      modal.addEventListener("click", function (event) {
+        if (event.target.hasAttribute("data-close-modal")) {
+          closeModal();
+        }
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") closeModal();
+      });
+
       window.addEventListener("popstate", function () {
         render(window.location.pathname);
       });
