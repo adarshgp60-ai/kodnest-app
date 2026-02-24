@@ -270,6 +270,54 @@ body {
   font-size: 14px;
 }
 
+.status-updates {
+  max-width: 720px;
+  margin: var(--space-2) auto 0;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-2);
+}
+
+.status-updates__title {
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-heading);
+  font-size: 24px;
+}
+
+.status-updates__empty {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.status-updates__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.status-update-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #fefdfb;
+}
+
+.status-update-item__title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.status-update-item__meta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
 .toggle-row {
   display: inline-flex;
   align-items: center;
@@ -390,11 +438,82 @@ body {
   background: #f4f3ef;
 }
 
+.status-badge {
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #f8f6f1;
+}
+
+.status-badge--neutral {
+  color: #5f5c53;
+  border-color: #d7d3c8;
+  background: #f3f1ec;
+}
+
+.status-badge--applied {
+  color: #1e4f86;
+  border-color: #9cb8d6;
+  background: #eff5fc;
+}
+
+.status-badge--rejected {
+  color: #8b0000;
+  border-color: #d4a3a3;
+  background: #fdf1f1;
+}
+
+.status-badge--selected {
+  color: #2f6f4e;
+  border-color: #9dc3af;
+  background: #f1faf4;
+}
+
+.status-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.status-pill {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 12px;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.status-pill--active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 .job-card__actions {
   margin-top: var(--space-1);
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
+}
+
+.toast-root {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 40;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toast-root--show {
+  opacity: 1;
 }
 
 .empty-state {
@@ -507,6 +626,11 @@ body {
   }
 
   .digest-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .status-update-item {
     flex-direction: column;
     align-items: flex-start;
   }
