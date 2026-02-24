@@ -3,213 +3,158 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>KodNest Premium Build System</title>
+  <title>Job Notification App – Premium Shell</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-shell">
-    <!-- Top Bar -->
+    <!-- Shared Top Navigation Bar -->
     <header class="top-bar">
-      <div class="top-bar__project">KodNest Premium Build System</div>
-      <div class="top-bar__progress">Step 1 / 4</div>
-      <div class="top-bar__status-badge top-bar__status-badge--not-started">
-        Not Started
-      </div>
+      <div class="top-bar__brand">Job Notification App</div>
+      <button
+        class="top-bar__toggle"
+        type="button"
+        aria-label="Toggle navigation"
+        aria-expanded="false"
+      >
+        <span class="top-bar__toggle-icon"></span>
+      </button>
+      <nav class="top-nav" aria-label="Primary">
+        <a class="top-nav__link" href="/dashboard" data-route="/dashboard">Dashboard</a>
+        <a class="top-nav__link" href="/saved" data-route="/saved">Saved</a>
+        <a class="top-nav__link" href="/digest" data-route="/digest">Digest</a>
+        <a class="top-nav__link" href="/settings" data-route="/settings">Settings</a>
+        <a class="top-nav__link" href="/proof" data-route="/proof">Proof</a>
+      </nav>
     </header>
 
-    <!-- Context Header -->
-    <section class="context-header">
-      <div class="context-header__inner">
-        <h1 class="context-header__title">
-          Establish the build context.
-        </h1>
-        <p class="context-header__subtitle">
-          Define what you are trying to ship so every decision in this workspace remains aligned and intentional.
+    <!-- Routed Page Shell -->
+    <main class="page-layout">
+      <section class="page" id="route-view" aria-live="polite">
+        <h1 class="page__title">Dashboard</h1>
+        <p class="page__subtitle">
+          This section will be built in the next step.
         </p>
-      </div>
-    </section>
-
-    <!-- Main Layout -->
-    <main class="layout">
-      <!-- Primary Workspace (70%) -->
-      <section class="layout__primary">
-        <div class="card card--primary">
-          <header class="card__header">
-            <h2 class="card__title">Primary workspace</h2>
-            <p class="card__subtitle">
-              This is where the core interaction for the current step lives.
-            </p>
-          </header>
-          <div class="card__body">
-            <div class="form-grid">
-              <div class="form-grid__field">
-                <label class="field-label" for="project-name">Project name</label>
-                <input
-                  id="project-name"
-                  class="input"
-                  type="text"
-                  placeholder="e.g. Payment orchestration surface"
-                />
-                <p class="field-help">
-                  A clear, internal-facing name. No marketing language.
-                </p>
-              </div>
-
-              <div class="form-grid__field">
-                <label class="field-label" for="problem">Primary problem</label>
-                <textarea
-                  id="problem"
-                  class="input input--multiline"
-                  rows="4"
-                  placeholder="Describe the specific problem this build is responsible for solving."
-                ></textarea>
-                <p class="field-help">
-                  Focus on the narrowest version of the problem that will still be meaningful when shipped.
-                </p>
-              </div>
-
-              <div class="form-grid__field">
-                <label class="field-label" for="constraints">Key constraints</label>
-                <textarea
-                  id="constraints"
-                  class="input input--multiline"
-                  rows="3"
-                  placeholder="List hard constraints such as timelines, integrations, or compliance requirements."
-                ></textarea>
-              </div>
-            </div>
-          </div>
-          <footer class="card__footer">
-            <button class="button button--secondary" type="button">
-              Back
-            </button>
-            <button class="button button--primary" type="button">
-              Continue
-            </button>
-          </footer>
-        </div>
-
-        <!-- Empty / Guidance state -->
-        <div class="empty-state">
-          <h3 class="empty-state__title">Nothing is committed yet.</h3>
-          <p class="empty-state__body">
-            Capture enough context on this step for another engineer to execute confidently. When in doubt, write less but make it sharper.
-          </p>
-          <button class="button button--ghost" type="button">
-            View example of a strong brief
-          </button>
-        </div>
       </section>
-
-      <!-- Secondary Panel (30%) -->
-      <aside class="layout__secondary">
-        <div class="card card--secondary">
-          <header class="card__header card__header--compact">
-            <h2 class="card__title">Step overview</h2>
-            <p class="card__subtitle">
-              Keep this panel as a calm reference while you work.
-            </p>
-          </header>
-
-          <div class="card__body card__body--stacked">
-            <section class="panel-section">
-              <h3 class="panel-section__title">What this step is for</h3>
-              <p class="panel-section__body">
-                Align on scope, constraints, and success criteria before any build work starts. A strong context keeps the rest of the system coherent.
-              </p>
-            </section>
-
-            <section class="panel-section">
-              <h3 class="panel-section__title">Copyable build prompt</h3>
-              <div class="prompt-box">
-                <textarea
-                  class="prompt-box__input"
-                  rows="6"
-                  spellcheck="false"
-                >You are working inside the KodNest Premium Build System. Your task is to turn this context into a calm, predictable build plan that can be handed between engineers without loss of intent.</textarea>
-              </div>
-              <div class="panel-actions">
-                <button class="button button--secondary" type="button">
-                  Copy
-                </button>
-                <button class="button button--secondary" type="button">
-                  Build in Lovable
-                </button>
-              </div>
-            </section>
-
-            <section class="panel-section">
-              <h3 class="panel-section__title">Outcome markers</h3>
-              <div class="panel-actions panel-actions--stacked">
-                <button class="button button--secondary" type="button">
-                  It worked
-                </button>
-                <button class="button button--secondary" type="button">
-                  Error
-                </button>
-                <button class="button button--secondary" type="button">
-                  Add screenshot
-                </button>
-              </div>
-            </section>
-          </div>
-        </div>
-      </aside>
     </main>
-
-    <!-- Proof Footer -->
-    <footer class="proof-footer">
-      <div class="proof-footer__inner">
-        <div class="proof-footer__item">
-          <label class="proof-checkbox">
-            <input type="checkbox" />
-            <span class="proof-checkbox__label">UI Built</span>
-          </label>
-          <input
-            class="input input--evidence"
-            type="text"
-            placeholder="Link to UI proof or describe what was validated."
-          />
-        </div>
-
-        <div class="proof-footer__item">
-          <label class="proof-checkbox">
-            <input type="checkbox" />
-            <span class="proof-checkbox__label">Logic Working</span>
-          </label>
-          <input
-            class="input input--evidence"
-            type="text"
-            placeholder="Describe or link to the logic verification."
-          />
-        </div>
-
-        <div class="proof-footer__item">
-          <label class="proof-checkbox">
-            <input type="checkbox" />
-            <span class="proof-checkbox__label">Test Passed</span>
-          </label>
-          <input
-            class="input input--evidence"
-            type="text"
-            placeholder="Reference test cases or runs."
-          />
-        </div>
-
-        <div class="proof-footer__item">
-          <label class="proof-checkbox">
-            <input type="checkbox" />
-            <span class="proof-checkbox__label">Deployed</span>
-          </label>
-          <input
-            class="input input--evidence"
-            type="text"
-            placeholder="Environment, release tag, or deployment notes."
-          />
-        </div>
-      </div>
-    </footer>
   </div>
+
+  <script>
+    (function () {
+      const routes = {
+        "/": { title: "Dashboard" },
+        "/dashboard": { title: "Dashboard" },
+        "/saved": { title: "Saved" },
+        "/digest": { title: "Digest" },
+        "/settings": { title: "Settings" },
+        "/proof": { title: "Proof" },
+        "404": { title: "Page Not Found", notFound: true },
+      };
+
+      const viewEl = document.getElementById("route-view");
+      const nav = document.querySelector(".top-nav");
+      const toggleButton = document.querySelector(".top-bar__toggle");
+
+      function normalisePath(path) {
+        if (!path || path === "/") return "/";
+        if (path.endsWith("/index.html")) return "/";
+        return path;
+      }
+
+      function setActiveLink(path) {
+        if (!nav) return;
+        const links = nav.querySelectorAll(".top-nav__link");
+        links.forEach((link) => {
+          const route = link.getAttribute("data-route");
+          const isDashboardAlias =
+            path === "/" && route === "/dashboard";
+
+          if (route === path || isDashboardAlias) {
+            link.classList.add("top-nav__link--active");
+            link.setAttribute("aria-current", "page");
+          } else {
+            link.classList.remove("top-nav__link--active");
+            link.removeAttribute("aria-current");
+          }
+        });
+      }
+
+      function render(path) {
+        const normalised = normalisePath(path);
+        const config = routes[normalised] || routes["404"];
+        const heading = config.title;
+        const isNotFound = !!config.notFound;
+
+        if (!viewEl) return;
+
+        const titleEl = viewEl.querySelector(".page__title");
+        const subtitleEl = viewEl.querySelector(".page__subtitle");
+
+        if (titleEl) {
+          titleEl.textContent = heading;
+        }
+
+        if (subtitleEl) {
+          subtitleEl.textContent = isNotFound
+            ? "The page you are looking for does not exist."
+            : "This section will be built in the next step.";
+        }
+
+        setActiveLink(isNotFound ? "" : normalised);
+
+        document.title = isNotFound
+          ? "Page Not Found – Job Notification App"
+          : heading + " – Job Notification App";
+      }
+
+      function handleLinkClick(event) {
+        const target = event.target.closest("a.top-nav__link");
+        if (!target || !nav.contains(target)) return;
+
+        const href = target.getAttribute("href") || "/";
+        const path = new URL(href, window.location.origin).pathname;
+        const currentPath = normalisePath(window.location.pathname);
+
+        // prevent full page reload between routes
+        event.preventDefault();
+
+        // clicking the active link should not reload or flicker
+        if (normalisePath(path) === currentPath) {
+          return;
+        }
+
+        window.history.pushState({}, "", path);
+        render(path);
+
+        // close mobile nav after navigation
+        if (toggleButton && document.body.classList.contains("nav-open")) {
+          document.body.classList.remove("nav-open");
+          toggleButton.setAttribute("aria-expanded", "false");
+        }
+      }
+
+      function handlePopState() {
+        render(window.location.pathname);
+      }
+
+      function handleToggle() {
+        if (!toggleButton) return;
+        const isOpen = document.body.classList.toggle("nav-open");
+        toggleButton.setAttribute("aria-expanded", String(isOpen));
+      }
+
+      if (nav) {
+        nav.addEventListener("click", handleLinkClick);
+      }
+      if (toggleButton) {
+        toggleButton.addEventListener("click", handleToggle);
+      }
+      window.addEventListener("popstate", handlePopState);
+
+      // initial render, including 404 for unknown paths
+      render(window.location.pathname);
+    })();
+  </script>
 </body>
 </html>
 

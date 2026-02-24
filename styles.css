@@ -439,3 +439,144 @@ body {
   height: 16px;
 }
 
+/* Primary navigation */
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border-color-subtle);
+  background-color: var(--color-bg);
+  gap: var(--space-2);
+}
+
+.top-bar__brand {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.top-bar__toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color-subtle);
+  background-color: #fdfbf7;
+  padding: 0;
+  cursor: pointer;
+}
+
+.top-bar__toggle-icon,
+.top-bar__toggle-icon::before,
+.top-bar__toggle-icon::after {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background-color: var(--color-text);
+  border-radius: 999px;
+  content: "";
+}
+
+.top-bar__toggle-icon::before,
+.top-bar__toggle-icon::after {
+  position: relative;
+}
+
+.top-bar__toggle-icon::before {
+  top: -5px;
+}
+
+.top-bar__toggle-icon::after {
+  top: 3px;
+}
+
+.top-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.top-nav__link {
+  position: relative;
+  padding-bottom: 4px;
+  font-size: 14px;
+  text-decoration: none;
+  color: var(--color-text);
+  border-bottom: 2px solid transparent;
+}
+
+.top-nav__link--active {
+  border-bottom-color: var(--color-accent);
+}
+
+.top-nav__link:hover {
+  border-bottom-color: rgba(139, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+  .top-bar {
+    align-items: flex-start;
+  }
+
+  .top-bar__toggle {
+    display: inline-flex;
+  }
+
+  .top-nav {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin-top: var(--space-1);
+    padding-top: var(--space-1);
+    border-top: 1px solid var(--border-color-subtle);
+  }
+
+  body.nav-open .top-nav {
+    display: flex;
+  }
+
+  .top-nav__link {
+    width: 100%;
+  }
+}
+
+/* Routed page shell */
+
+.page-layout {
+  padding: var(--space-4);
+}
+
+.page {
+  max-width: var(--max-text-width);
+  margin: var(--space-4) auto var(--space-5);
+}
+
+.page__title {
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-heading);
+  font-size: 32px;
+  letter-spacing: 0.02em;
+}
+
+.page__subtitle {
+  margin: 0;
+  font-size: 16px;
+  color: rgba(17, 17, 17, 0.75);
+}
+
+@media (max-width: 640px) {
+  .page-layout {
+    padding: var(--space-3);
+  }
+
+  .page {
+    margin-top: var(--space-3);
+  }
+}
+
