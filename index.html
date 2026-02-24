@@ -3,158 +3,151 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Job Notification App – Premium Shell</title>
+  <title>Job Notification Tracker</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-shell">
-    <!-- Shared Top Navigation Bar -->
-    <header class="top-bar">
-      <div class="top-bar__brand">Job Notification App</div>
-      <button
-        class="top-bar__toggle"
-        type="button"
-        aria-label="Toggle navigation"
-        aria-expanded="false"
-      >
-        <span class="top-bar__toggle-icon"></span>
-      </button>
-      <nav class="top-nav" aria-label="Primary">
-        <a class="top-nav__link" href="/dashboard" data-route="/dashboard">Dashboard</a>
-        <a class="top-nav__link" href="/saved" data-route="/saved">Saved</a>
-        <a class="top-nav__link" href="/digest" data-route="/digest">Digest</a>
-        <a class="top-nav__link" href="/settings" data-route="/settings">Settings</a>
-        <a class="top-nav__link" href="/proof" data-route="/proof">Proof</a>
-      </nav>
+    <header class="top-nav-wrap">
+      <div class="top-nav-inner">
+        <div class="brand">Job Notification Tracker</div>
+        <nav class="top-nav" aria-label="Primary">
+          <a class="top-nav__link" href="/dashboard" data-route="/dashboard">Dashboard</a>
+          <a class="top-nav__link" href="/saved" data-route="/saved">Saved</a>
+          <a class="top-nav__link" href="/digest" data-route="/digest">Digest</a>
+          <a class="top-nav__link" href="/settings" data-route="/settings">Settings</a>
+          <a class="top-nav__link" href="/proof" data-route="/proof">Proof</a>
+        </nav>
+      </div>
     </header>
 
-    <!-- Routed Page Shell -->
-    <main class="page-layout">
-      <section class="page" id="route-view" aria-live="polite">
-        <h1 class="page__title">Dashboard</h1>
-        <p class="page__subtitle">
-          This section will be built in the next step.
-        </p>
-      </section>
+    <main class="main-shell">
+      <section id="route-view" aria-live="polite"></section>
     </main>
   </div>
 
   <script>
     (function () {
-      const routes = {
-        "/": { title: "Dashboard" },
-        "/dashboard": { title: "Dashboard" },
-        "/saved": { title: "Saved" },
-        "/digest": { title: "Digest" },
-        "/settings": { title: "Settings" },
-        "/proof": { title: "Proof" },
-        "404": { title: "Page Not Found", notFound: true },
+      const routeView = document.getElementById("route-view");
+      const nav = document.querySelector(".top-nav");
+
+      const pages = {
+        "/": {
+          html:
+            '<section class="page hero-page">' +
+            '<h1 class="page__title">Stop Missing The Right Jobs.</h1>' +
+            '<p class="page__subtitle">Precision-matched job discovery delivered daily at 9AM.</p>' +
+            '<a class="button-primary" href="/settings" data-route="/settings">Start Tracking</a>' +
+            "</section>",
+          docTitle: "Job Notification Tracker",
+        },
+        "/dashboard": {
+          html:
+            '<section class="page">' +
+            '<h1 class="page__title">Dashboard</h1>' +
+            '<p class="empty-title">No jobs yet. In the next step, you will load a realistic dataset.</p>' +
+            "</section>",
+          docTitle: "Dashboard | Job Notification Tracker",
+        },
+        "/settings": {
+          html:
+            '<section class="page">' +
+            '<h1 class="page__title">Settings</h1>' +
+            '<div class="field-group">' +
+            '<label class="field-label" for="role-keywords">Role keywords</label>' +
+            '<input class="field-input" id="role-keywords" type="text" placeholder="e.g. Product Manager, Data Analyst" />' +
+            "</div>" +
+            '<div class="field-group">' +
+            '<label class="field-label" for="preferred-locations">Preferred locations</label>' +
+            '<input class="field-input" id="preferred-locations" type="text" placeholder="e.g. New York, Austin, Remote (US)" />' +
+            "</div>" +
+            '<div class="field-group">' +
+            '<label class="field-label" for="mode">Mode (Remote / Hybrid / Onsite)</label>' +
+            '<input class="field-input" id="mode" type="text" placeholder="Select preferred work mode" />' +
+            "</div>" +
+            '<div class="field-group">' +
+            '<label class="field-label" for="experience-level">Experience level</label>' +
+            '<input class="field-input" id="experience-level" type="text" placeholder="e.g. Entry, Mid, Senior" />' +
+            "</div>" +
+            "</section>",
+          docTitle: "Settings | Job Notification Tracker",
+        },
+        "/saved": {
+          html:
+            '<section class="page">' +
+            '<h1 class="page__title">Saved</h1>' +
+            '<p class="empty-title">No saved jobs yet.</p>' +
+            '<p class="empty-copy">Jobs you bookmark for later review will appear here.</p>' +
+            "</section>",
+          docTitle: "Saved | Job Notification Tracker",
+        },
+        "/digest": {
+          html:
+            '<section class="page">' +
+            '<h1 class="page__title">Digest</h1>' +
+            '<p class="empty-title">Daily summaries are coming soon.</p>' +
+            '<p class="empty-copy">This section will show your 9AM job digest with top matches and highlights.</p>' +
+            "</section>",
+          docTitle: "Digest | Job Notification Tracker",
+        },
+        "/proof": {
+          html:
+            '<section class="page">' +
+            '<h1 class="page__title">Proof</h1>' +
+            '<p class="page__subtitle muted">Placeholder page for artifact collection.</p>' +
+            "</section>",
+          docTitle: "Proof | Job Notification Tracker",
+        },
       };
 
-      const viewEl = document.getElementById("route-view");
-      const nav = document.querySelector(".top-nav");
-      const toggleButton = document.querySelector(".top-bar__toggle");
-
-      function normalisePath(path) {
-        if (!path || path === "/") return "/";
-        if (path.endsWith("/index.html")) return "/";
+      function normalizePath(path) {
+        if (!path || path === "/" || path.endsWith("/index.html")) {
+          return "/";
+        }
         return path;
       }
 
-      function setActiveLink(path) {
-        if (!nav) return;
+      function setActiveRoute(path) {
         const links = nav.querySelectorAll(".top-nav__link");
         links.forEach((link) => {
           const route = link.getAttribute("data-route");
-          const isDashboardAlias =
-            path === "/" && route === "/dashboard";
-
-          if (route === path || isDashboardAlias) {
-            link.classList.add("top-nav__link--active");
+          const isActive = route === path;
+          link.classList.toggle("top-nav__link--active", isActive);
+          if (isActive) {
             link.setAttribute("aria-current", "page");
           } else {
-            link.classList.remove("top-nav__link--active");
             link.removeAttribute("aria-current");
           }
         });
       }
 
-      function render(path) {
-        const normalised = normalisePath(path);
-        const config = routes[normalised] || routes["404"];
-        const heading = config.title;
-        const isNotFound = !!config.notFound;
-
-        if (!viewEl) return;
-
-        const titleEl = viewEl.querySelector(".page__title");
-        const subtitleEl = viewEl.querySelector(".page__subtitle");
-
-        if (titleEl) {
-          titleEl.textContent = heading;
-        }
-
-        if (subtitleEl) {
-          subtitleEl.textContent = isNotFound
-            ? "The page you are looking for does not exist."
-            : "This section will be built in the next step.";
-        }
-
-        setActiveLink(isNotFound ? "" : normalised);
-
-        document.title = isNotFound
-          ? "Page Not Found – Job Notification App"
-          : heading + " – Job Notification App";
+      function render(pathname) {
+        const path = normalizePath(pathname);
+        const page = pages[path] || pages["/"];
+        routeView.innerHTML = page.html;
+        document.title = page.docTitle;
+        setActiveRoute(path);
       }
 
-      function handleLinkClick(event) {
-        const target = event.target.closest("a.top-nav__link");
-        if (!target || !nav.contains(target)) return;
-
-        const href = target.getAttribute("href") || "/";
-        const path = new URL(href, window.location.origin).pathname;
-        const currentPath = normalisePath(window.location.pathname);
-
-        // prevent full page reload between routes
+      function onNavigate(event) {
+        const link = event.target.closest("a[data-route]");
+        if (!link) return;
         event.preventDefault();
-
-        // clicking the active link should not reload or flicker
-        if (normalisePath(path) === currentPath) {
-          return;
-        }
-
+        const path = new URL(link.getAttribute("href"), window.location.origin).pathname;
+        const currentPath = normalizePath(window.location.pathname);
+        if (path === currentPath) return;
         window.history.pushState({}, "", path);
         render(path);
-
-        // close mobile nav after navigation
-        if (toggleButton && document.body.classList.contains("nav-open")) {
-          document.body.classList.remove("nav-open");
-          toggleButton.setAttribute("aria-expanded", "false");
-        }
       }
 
-      function handlePopState() {
+      nav.addEventListener("click", onNavigate);
+      routeView.addEventListener("click", onNavigate);
+      window.addEventListener("popstate", function () {
         render(window.location.pathname);
-      }
+      });
 
-      function handleToggle() {
-        if (!toggleButton) return;
-        const isOpen = document.body.classList.toggle("nav-open");
-        toggleButton.setAttribute("aria-expanded", String(isOpen));
-      }
-
-      if (nav) {
-        nav.addEventListener("click", handleLinkClick);
-      }
-      if (toggleButton) {
-        toggleButton.addEventListener("click", handleToggle);
-      }
-      window.addEventListener("popstate", handlePopState);
-
-      // initial render, including 404 for unknown paths
       render(window.location.pathname);
     })();
   </script>
 </body>
 </html>
-
